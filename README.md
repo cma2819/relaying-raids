@@ -77,3 +77,17 @@ This template comes with [Tailwind CSS](https://tailwindcss.com/) already config
 ---
 
 Built with ❤️ using React Router.
+
+## Cloudflare D1 + Prisma
+
+### Create migration
+
+```bash
+npx wrangler d1 migrations create :db-name :migration-name
+```
+
+### Apply migration
+
+```bash
+npm run migrate -- :db-name (--remote)
+```
