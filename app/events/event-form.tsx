@@ -97,7 +97,6 @@ export function EventForm({ errors, initialEvent, baseUrl }: Props) {
             error={errors?.slug}
             leftSection={baseUrl && (
               <Text size="sm" c="dimmed">
-                {baseUrl}
                 /events/
               </Text>
             )}
