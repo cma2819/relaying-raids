@@ -2,15 +2,15 @@ import { drizzle, DrizzleD1Database } from 'drizzle-orm/d1';
 import { createRequestHandler, type SessionStorage } from 'react-router';
 import { Authenticator } from 'remix-auth';
 import * as schema from '../database/schema';
-import { makeAuthenticator, createSessionStorage } from '../server/auth/auth';
-import { Twitch } from '../server/services/twitch';
+import { makeAuthenticator, createSessionStorage } from '../app/.server/auth/auth';
+import { Twitch } from '../shared/services/twitch';
 import type { User } from '../shared/types/user';
 
 declare module 'react-router' {
   export interface AppLoadContext {
     cloudflare: {
-      env: Env
-      ctx: ExecutionContext
+      env: Env;
+      ctx: ExecutionContext;
     };
     db: DrizzleD1Database<typeof schema>;
     authenticator: Authenticator<User>;

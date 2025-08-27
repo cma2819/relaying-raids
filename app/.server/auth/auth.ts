@@ -1,9 +1,9 @@
 import { Authenticator } from 'remix-auth';
 import { createCookieSessionStorage } from 'react-router';
-import { Twitch } from '../services/twitch';
+import { Twitch } from '../../../shared/services/twitch';
 import { TwitchStrategy } from './strategy';
 import type { AppLoadContext } from 'react-router';
-import type { User } from '../../shared/types/user';
+import type { User } from '../../../shared/types/user';
 
 export const createSessionStorage = (env: Env) => {
   return createCookieSessionStorage({
@@ -29,12 +29,13 @@ export const makeAuthenticator = async (env: Env) => {
       {
         clientId: env.TWITCH_CLIENT_ID,
         clientSecret: env.TWITCH_CLIENT_SECRET,
-        authorizationEndpoint: "https://id.twitch.tv/oauth2/authorize",
-        tokenEndpoint: "https://id.twitch.tv/oauth2/token",
+        authorizationEndpoint: 'https://id.twitch.tv/oauth2/authorize',
+        tokenEndpoint: 'https://id.twitch.tv/oauth2/token',
         redirectURI: env.TWITCH_REDIRECT_URI,
+        scopes: ['user:read:email', 'channel:manage:raids'],
       },
       async ({ tokens }) => {
-        const user = await twitchApi.getMe({ bearer: tokens.accessToken(), });
+        const user = await twitchApi.getMe({ bearer: tokens.accessToken() });
         return {
           id: user.id,
           login: user.login,
@@ -53,7 +54,6 @@ export const makeAuthenticator = async (env: Env) => {
 };
 
 export const login = async (ctx: AppLoadContext, cookieString: string | null, user: User): Promise<string> => {
-  
   const sessionStorage = createSessionStorage(ctx.cloudflare.env);
   const session = await sessionStorage.getSession(cookieString);
   session.set('user', user);

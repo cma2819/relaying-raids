@@ -1,11 +1,11 @@
-import { ActionIcon, Table } from "@mantine/core";
-import type { Submission } from "./submission";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { ActionIcon, Table } from '@mantine/core';
+import type { Submission } from './submission';
+import { TrashIcon } from '@heroicons/react/24/outline';
 
 type Props = {
-    submissions: Submission[];
-    onDelete: (index: number) => void;
-}
+  submissions: Submission[];
+  onDelete: (index: number) => void;
+};
 
 export function SubmissionCsvList({ submissions, onDelete }: Props) {
   return (

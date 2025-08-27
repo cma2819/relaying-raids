@@ -1,7 +1,7 @@
 type Props = {
   level: 'h1' | 'h2';
   children: React.ReactNode;
-}
+};
 
 export function Head({ level, children }: Props) {
   return (

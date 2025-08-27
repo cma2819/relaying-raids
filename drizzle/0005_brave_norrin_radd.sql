@@ -1,0 +1,1 @@
+ALTER TABLE `relaySubmissions` ADD `order` integer NOT NULL;

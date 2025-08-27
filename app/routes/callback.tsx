@@ -1,12 +1,17 @@
-import { login, makeAuthenticator } from "~/auth/auth.server";
-import { redirect } from "react-router";
-import type { Route } from "./+types/callback";
+import { redirect } from 'react-router';
+import type { Route } from './+types/callback';
+import { appMeta } from '~/utils';
+
+export function meta() {
+  return appMeta('認証処理中', 'Twitchアカウントの認証処理を行っています');
+}
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  const authenticator = await makeAuthenticator(context.cloudflare.env);
-  const user = await authenticator.authenticate('twitch', request);
+  const user = await context.authenticator.authenticate('twitch', request);
 
-  const cookie = await login(context, request.headers.get('cookie'), user);
+  const session = await context.sessionStorage.getSession(request.headers.get('cookie'));
+  session.set('user', user);
+  const cookie = await context.sessionStorage.commitSession(session);
 
   return redirect('/', {
     headers: {

@@ -1,1 +1,1 @@
-export type Dry<T> = Omit<T, "id">;
+export type Dry<T> = Omit<T, 'id'>;

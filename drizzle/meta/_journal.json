@@ -15,6 +15,41 @@
       "when": 1756079644417,
       "tag": "0001_wakeful_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1756123713288,
+      "tag": "0002_silky_lady_mastermind",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1756123750766,
+      "tag": "0003_keen_thor_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1756126377327,
+      "tag": "0004_futuristic_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1756191708798,
+      "tag": "0005_brave_norrin_radd",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1756221941623,
+      "tag": "0006_closed_reptil",
+      "breakpoints": true
     }
   ]
 }

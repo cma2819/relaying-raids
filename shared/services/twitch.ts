@@ -1,21 +1,21 @@
-import ky from "ky";
+import ky from 'ky';
 
 type TwitchRequestOption = {
   bearer: string;
   query?: Record<string, string>;
   body?: BodyInit;
-}
+};
 
 type TwitchResponse<T> = {
-    data: T[],
-}
+  data: T[];
+};
 
 type TwitchUser = {
-    id: string;
-    login: string;
-    display_name: string;
-    email: string;
-    profile_image_url: string;
+  id: string;
+  login: string;
+  display_name: string;
+  email: string;
+  profile_image_url: string;
 };
 
 const TWITCH_API_URL = 'https://api.twitch.tv/helix';
@@ -43,6 +43,19 @@ export const Twitch = ({ clientId }: { clientId: string }) => {
     getMe: async ({ bearer }: { bearer: string }): Promise<TwitchUser> => {
       const response = await request<TwitchUser>('GET', 'users', { bearer });
       return response.data[0];
+    },
+    getChannelInfo: async ({ bearer, login }: { bearer: string; login: string }): Promise<TwitchUser> => {
+      const response = await request<TwitchUser>('GET', 'users', { bearer, query: { login } });
+      return response.data[0];
+    },
+    startRaid: async ({ bearer, fromBroadcasterId, toBroadcasterId }: { bearer: string; fromBroadcasterId: string; toBroadcasterId: string }): Promise<void> => {
+      await request('POST', 'raids', {
+        bearer,
+        query: {
+          from_broadcaster_id: fromBroadcasterId,
+          to_broadcaster_id: toBroadcasterId,
+        },
+      });
     },
   };
 };

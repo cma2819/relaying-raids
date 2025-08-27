@@ -1,18 +1,16 @@
-import { authenticatedUser } from '~/auth/auth.server';
 import { redirect } from 'react-router';
 import { EventForm } from '~/events/event-form';
-import { Paper } from '~/common/paper';
-import { Head } from '~/common/head';
-import * as schema from "../../../database/schema";
+import { ContentContainer } from '~/common/content-container';
 import z from 'zod';
 import type { Route } from './+types/new';
-import chunk from 'lodash.chunk';
+import type { User } from '../../../shared/types/user';
+import { authenticatedUser } from '../../.server/auth/auth';
+import { createRelayEvent, isSlugAvailable } from '../../.server/services/event';
+import { eventSchema } from '~/events/schemas';
+import { appMeta } from '~/utils';
 
 export function meta() {
-  return [
-    { title: 'リレーをつくる' },
-    { name: 'description', content: '新しくレイドリレーをつくります' },
-  ];
+  return appMeta('レイドリレーをつくる', '新しくレイドリレーをつくります');
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -20,18 +18,14 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   if (!user) {
     throw redirect('/login');
   }
-  return { user };
+
+  const url = new URL(request.url);
+  const baseUrl = `${url.protocol}//${url.host}`;
+
+  return { user, baseUrl };
 }
 
-const submissionsSchema = z.object({
-  name: z.string(),
-  twitch: z.string().min(3),
-}); 
-
-const newRelaySchema = z.object({
-  name: z.string().min(3),
-  submissions: z.array(submissionsSchema).min(1),
-});
+const newRelaySchema = eventSchema;
 
 export async function action({ request, context }: Route.ActionArgs) {
   const user = await authenticatedUser(context, request.headers.get('cookie'));
@@ -42,45 +36,52 @@ export async function action({ request, context }: Route.ActionArgs) {
   const formData = await request.formData();
   const result = newRelaySchema.safeParse({
     name: formData.get('event-name'),
+    slug: formData.get('event-slug'),
     submissions: JSON.parse(formData.get('submissions') as string || '[]'),
   });
   if (!result.success) {
     console.error(z.flattenError(result.error));
-    return { error: z.flattenError(result.error)};
+    return { error: z.flattenError(result.error) };
   }
 
-  const [createdEvent] = await context.db.insert(schema.relayEvents).values({
-    name: result.data.name,
-    moderator: user.id,
-  }).returning();
-
-  const chunkedSubmissions = chunk(result.data.submissions, 20);
-
-  for (const chunk of chunkedSubmissions) {
-    await context.db.insert(schema.relaySubmissions).values(
-      chunk.map(submission => ({
-        eventId: createdEvent.id,
-        name: submission.name,
-        twitch: submission.twitch,
-      }))
-    );
+  const slugAvailable = await isSlugAvailable(context, result.data.slug);
+  if (!slugAvailable) {
+    return {
+      error: {
+        fieldErrors: {
+          slug: ['This slug is already in use'],
+        },
+      },
+    };
   }
 
-  throw redirect('/');
+  await createRelayEvent(context, user.id, result.data);
+
+  throw redirect('/events');
 }
 
-export default function New({ actionData }: Route.ComponentProps) {
-  const errors = actionData?.error ? {
-    name: actionData?.error?.fieldErrors.name?.join(', '),
-    submissions: actionData.error.fieldErrors.submissions,
-  } : undefined;
+type ActionData = {
+  error?: {
+    fieldErrors?: {
+      name?: string[];
+      slug?: string[];
+      submissions?: string[];
+    };
+  };
+};
+
+export default function New({ actionData, loaderData }: { actionData?: ActionData; loaderData?: { user: User; baseUrl: string } }) {
+  const errors = actionData?.error?.fieldErrors
+    ? {
+        name: actionData.error.fieldErrors.name?.join(', '),
+        slug: actionData.error.fieldErrors.slug?.join(', '),
+        submissions: actionData.error.fieldErrors.submissions,
+      }
+    : undefined;
 
   return (
-    <div className='flex flex-col items-center gap-2'>
-      <Paper>
-        <Head level='h2'>新しいレイドリレーを作成</Head>
-        <EventForm errors={errors} />
-      </Paper>
-    </div>
+    <ContentContainer title="新しいレイドリレーを作成">
+      <EventForm errors={errors} baseUrl={loaderData?.baseUrl} />
+    </ContentContainer>
   );
 };

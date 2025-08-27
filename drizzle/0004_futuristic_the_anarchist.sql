@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `relayEvents_slug_unique` ON `relayEvents` (`slug`);

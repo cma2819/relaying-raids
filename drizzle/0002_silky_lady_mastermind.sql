@@ -1,0 +1,1 @@
+ALTER TABLE `relayEvents` ADD `slug` text;
