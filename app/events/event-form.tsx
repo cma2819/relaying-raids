@@ -100,7 +100,7 @@ export function EventForm({ errors, initialEvent, baseUrl }: Props) {
                 /events/
               </Text>
             )}
-            leftSectionWidth={200}
+            leftSectionWidth={100}
             disabled={isSubmitting}
           />
         </div>
