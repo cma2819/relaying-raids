@@ -3,9 +3,7 @@ import { SubmissionCsvInput } from './submission-csv-input';
 import { Button, Modal, Stack, Text, TextInput } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useCallback, useState } from 'react';
-import type { Dry } from '~/common/models';
-import type { Event } from './event';
-import type { Submission } from './submission';
+import type { SubmissionInput } from './submission';
 import { SubmissionAddInput } from './submission-add-input';
 import { DraggableSubmissionList } from './draggable-submission-list';
 
@@ -17,7 +15,7 @@ type Props = {
 
 export function EventForm({ errors, initialEvent, baseUrl }: Props) {
   const [showDialog, { open, close }] = useDisclosure(false);
-  const [event, setEvent] = useState<Dry<Event>>(initialEvent || {
+  const [event, setEvent] = useState<{ name: string; slug: string; submissions: SubmissionInput[] }>(initialEvent || {
     name: '',
     slug: '',
     submissions: [],
@@ -32,18 +30,18 @@ export function EventForm({ errors, initialEvent, baseUrl }: Props) {
   const isConfirmable = event.name.trim().length > 2 && event.slug.trim().length >= 3 && event.submissions.length > 0;
   const isSubmitting = navigation.state === 'submitting';
 
-  const handleConfirm = (submissions: Dry<Submission>[]) => {
+  const handleConfirm = (submissions: SubmissionInput[]) => {
     setEvent({ ...event, submissions });
     close();
   };
 
-  const handleAddSubmission = (submission: Dry<Submission>) => {
+  const handleAddSubmission = (submission: SubmissionInput) => {
     const newOrder = event.submissions.length + 1;
     const submissionWithOrder = { ...submission, order: newOrder };
     setEvent({ ...event, submissions: [...event.submissions, submissionWithOrder] });
   };
 
-  const handleDeleteSubmission = (submission: Dry<Submission>) => {
+  const handleDeleteSubmission = (submission: SubmissionInput) => {
     const filteredSubmissions = event.submissions.filter(s => s !== submission);
     const reorderedSubmissions = filteredSubmissions.map((s, index) => ({
       ...s,
@@ -52,7 +50,7 @@ export function EventForm({ errors, initialEvent, baseUrl }: Props) {
     setEvent({ ...event, submissions: reorderedSubmissions });
   };
 
-  const handleReorderSubmissions = (reorderedSubmissions: Dry<Submission>[]) => {
+  const handleReorderSubmissions = (reorderedSubmissions: SubmissionInput[]) => {
     setEvent({ ...event, submissions: reorderedSubmissions });
   };
 

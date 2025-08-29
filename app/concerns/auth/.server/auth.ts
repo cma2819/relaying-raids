@@ -1,9 +1,9 @@
 import { Authenticator } from 'remix-auth';
 import { createCookieSessionStorage } from 'react-router';
-import { Twitch } from '../../../shared/services/twitch';
-import { TwitchStrategy } from './strategy';
+import { Twitch } from '../../../../shared/services/twitch';
 import type { AppLoadContext } from 'react-router';
-import type { User } from '../../../shared/types/user';
+import type { User } from '../../../../shared/types/user';
+import { TwitchStrategy } from './strategy';
 
 export const createSessionStorage = (env: Env) => {
   return createCookieSessionStorage({
@@ -24,33 +24,35 @@ export const makeAuthenticator = async (env: Env) => {
   const authenticator = new Authenticator<User>();
   const twitchApi = Twitch({ clientId: env.TWITCH_CLIENT_ID });
 
-  authenticator.use(
-    await new TwitchStrategy<User>(
-      {
-        clientId: env.TWITCH_CLIENT_ID,
-        clientSecret: env.TWITCH_CLIENT_SECRET,
-        authorizationEndpoint: 'https://id.twitch.tv/oauth2/authorize',
-        tokenEndpoint: 'https://id.twitch.tv/oauth2/token',
-        redirectURI: env.TWITCH_REDIRECT_URI,
-        scopes: ['user:read:email', 'channel:manage:raids'],
-      },
-      async ({ tokens }) => {
-        const user = await twitchApi.getMe({ bearer: tokens.accessToken() });
-        return {
-          id: user.id,
-          login: user.login,
-          email: user.email,
-          name: user.display_name,
-          avatar: user.profile_image_url,
-          accessToken: tokens.accessToken(),
-          refreshToken: tokens.hasRefreshToken() ? tokens.refreshToken() : null,
-        };
-      },
-    ),
-    'twitch',
+  const strategy = await new TwitchStrategy<User>(
+    {
+      clientId: env.TWITCH_CLIENT_ID,
+      clientSecret: env.TWITCH_CLIENT_SECRET,
+      authorizationEndpoint: 'https://id.twitch.tv/oauth2/authorize',
+      tokenEndpoint: 'https://id.twitch.tv/oauth2/token',
+      redirectURI: env.TWITCH_REDIRECT_URI,
+      scopes: ['user:read:email', 'channel:manage:raids'],
+    },
+    async ({ tokens }) => {
+      const userResult = await twitchApi.getMe({ bearer: tokens.accessToken() });
+      if (userResult.isErr()) {
+        throw userResult.error;
+      }
+      const user = userResult.value;
+      return {
+        id: user.id,
+        login: user.login,
+        email: user.email,
+        name: user.display_name,
+        avatar: user.profile_image_url,
+        accessToken: tokens.accessToken(),
+        refreshToken: tokens.refreshToken(),
+      };
+    },
   );
+  authenticator.use(strategy, 'twitch');
 
-  return authenticator;
+  return { authenticator, strategy };
 };
 
 export const login = async (ctx: AppLoadContext, cookieString: string | null, user: User): Promise<string> => {
@@ -64,6 +66,15 @@ export const login = async (ctx: AppLoadContext, cookieString: string | null, us
 export const authenticatedUser = async (ctx: AppLoadContext, cookieString: string | null): Promise<User> => {
   const session = await createSessionStorage(ctx.cloudflare.env).getSession(cookieString);
   return session.get('user');
+};
+
+export const refresh = async (ctx: AppLoadContext, cookieString: string | null, user: User): Promise<string> => {
+  const tokens = await ctx.auth.strategy.refreshToken(user.refreshToken);
+  return login(ctx, cookieString, {
+    ...user,
+    accessToken: tokens.accessToken(),
+    refreshToken: tokens.refreshToken(),
+  });
 };
 
 export const logout = async (ctx: AppLoadContext, cookieString: string | null): Promise<string> => {

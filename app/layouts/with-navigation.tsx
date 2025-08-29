@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router';
-import { Navigation } from '../common/navigation';
+import { Navigation } from '../concerns/common/navigation';
 
 export default function WithNavigationLayout() {
   return (

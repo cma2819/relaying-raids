@@ -2,17 +2,17 @@
 
 import { PaperClipIcon } from '@heroicons/react/24/outline';
 import { Button, FileButton, Group, Stack, Text } from '@mantine/core';
-import { loadSubmissionCsv, type Submission } from './submission';
+import { loadSubmissionCsv, type SubmissionInput } from './submission';
 import { useState } from 'react';
 import { SubmissionCsvList } from './submission-csv-list';
 
 type Props = {
-  onConfirm: (submissions: Submission[]) => void;
+  onConfirm: (submissions: SubmissionInput[]) => void;
 };
 
 export function SubmissionCsvInput({ onConfirm }: Props) {
   const [status, setStatus] = useState<'waiting' | 'loading' | 'done'>('waiting');
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [submissions, setSubmissions] = useState<SubmissionInput[]>([]);
 
   const handleFileChange = (file: File | null) => {
     if (!file) {

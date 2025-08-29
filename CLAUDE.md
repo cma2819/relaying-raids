@@ -7,12 +7,11 @@ Twitchリレー企画管理システム。React Router v7 + Cloudflare Workers +
 ```
 ├── app/                   # React Router アプリケーション
 │   ├── .server/           # サーバーサイドロジック (React Router v7 Server module)
-│   ├── routes/            # ルート定義
+│   ├── routes/            # Route Modules
 │   ├── common/            # 共通コンポーネント・ユーティリティ
 │   ├── events/            # イベント関連コンポーネント
 │   ├── menu/              # メニューコンポーネント
 │   ├── twitch/            # Twitch UI コンポーネント
-│   └── welcome/           # ウェルカム画面
 ├── shared/                # 共通型定義
 │   ├── services/          # 外部API連携
 │   └── types/             # TypeScript型定義
@@ -117,6 +116,18 @@ CLOUDFLARE_TOKEN=
 - React Router の標準に従い、基本は `Form` の submit による server action を利用してください。
 - Action が成功した場合は結果をフィードバックできるページへのリダイレクトを行ってください。
 - Action が失敗した場合はエラーを表現する JSON を返してください。ページ側では返ってきた ActionData 内のエラーに基づいてエラー表示するように実装してください。
+
+#### Route Modules
+
+Routes Modules の実装では以下を遵守してください。
+
+- 関数の引数の型定義には、React Router が生成する型定義 `Route.*` を使ってください。
+- Route Modules 内のコンポーネントの引数にも `Route.ComponentProps` を必ず使ってください。
+
+### Styling
+
+- 原則、 `styles` プロパティを指定することによるスタイリングは禁止です。Tailwind CSS を用いた、class によるスタイルで実装してください。
+- Tailwind では要件を実現できない場合は、計画を提出して指示を仰いでください。
 
 ### コメント
 

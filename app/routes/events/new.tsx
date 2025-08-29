@@ -1,13 +1,13 @@
 import { redirect } from 'react-router';
-import { EventForm } from '~/events/event-form';
-import { ContentContainer } from '~/common/content-container';
+import { EventForm } from '~/concerns/events/event-form';
+import { ContentContainer } from '~/concerns/common/content-container';
 import z from 'zod';
 import type { Route } from './+types/new';
-import type { User } from '../../../shared/types/user';
-import { authenticatedUser } from '../../.server/auth/auth';
-import { createRelayEvent, isSlugAvailable } from '../../.server/services/event';
-import { eventSchema } from '~/events/schemas';
+import { authenticatedUser } from '../../concerns/auth/.server/auth';
+import { createRelayEvent, isSlugAvailable } from '../../concerns/events/.server/event';
+import { eventSchema } from '~/concerns/events/schemas';
 import { appMeta } from '~/utils';
+import { extractEventFormErrors } from '~/concerns/events/form-utils';
 
 export function meta() {
   return appMeta('レイドリレーをつくる', '新しくレイドリレーをつくります');
@@ -60,24 +60,8 @@ export async function action({ request, context }: Route.ActionArgs) {
   throw redirect('/events');
 }
 
-type ActionData = {
-  error?: {
-    fieldErrors?: {
-      name?: string[];
-      slug?: string[];
-      submissions?: string[];
-    };
-  };
-};
-
-export default function New({ actionData, loaderData }: { actionData?: ActionData; loaderData?: { user: User; baseUrl: string } }) {
-  const errors = actionData?.error?.fieldErrors
-    ? {
-        name: actionData.error.fieldErrors.name?.join(', '),
-        slug: actionData.error.fieldErrors.slug?.join(', '),
-        submissions: actionData.error.fieldErrors.submissions,
-      }
-    : undefined;
+export default function New({ actionData, loaderData }: Route.ComponentProps) {
+  const errors = extractEventFormErrors(actionData);
 
   return (
     <ContentContainer title="新しいレイドリレーを作成">

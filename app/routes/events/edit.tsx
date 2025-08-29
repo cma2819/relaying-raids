@@ -1,44 +1,23 @@
 import { redirect } from 'react-router';
-import { EventForm } from '~/events/event-form';
-import { ContentContainer } from '~/common/content-container';
-import { notifications } from '@mantine/notifications';
-import { useEffect } from 'react';
+import { EventForm } from '~/concerns/events/event-form';
+import { ContentContainer } from '~/concerns/common/content-container';
 import z from 'zod';
-import type { LoaderFunctionArgs, ActionFunctionArgs } from 'react-router';
-import type { User } from '../../../shared/types/user';
-import { authenticatedUser } from '../../.server/auth/auth';
-import { getRelayEventBySlug, updateRelayEvent, isSlugAvailable } from '../../.server/services/event';
-import { eventSchema } from '~/events/schemas';
+import type { Route } from './+types/edit';
+import { authenticatedUser } from '../../concerns/auth/.server/auth';
+import { getRelayEventBySlug, updateRelayEvent, isSlugAvailable } from '../../concerns/events/.server/event';
+import { eventSchema } from '~/concerns/events/schemas';
 import { appMeta } from '~/utils';
+import { useActionNotifications } from '~/concerns/events/notification-hooks';
+import { extractEventFormErrors, createEventFormInitialValues } from '~/concerns/events/form-utils';
 
-type EventWithSubmissions = {
-  id: number;
-  name: string;
-  slug: string;
-  moderator: string;
-  submissions: Array<{
-    id: number;
-    eventId: number;
-    name: string;
-    twitch: string;
-    order: number;
-  }>;
-};
-
-type LoaderData = {
-  user: User;
-  event: EventWithSubmissions;
-  baseUrl: string;
-};
-
-export function meta({ loaderData }: { loaderData?: LoaderData }) {
+export function meta({ loaderData }: Route.MetaArgs) {
   return appMeta(
     `${loaderData?.event?.name || 'リレー'}を編集`,
     'レイドリレーを編集します',
   );
 }
 
-export async function loader({ context, request, params }: LoaderFunctionArgs) {
+export async function loader({ context, request, params }: Route.LoaderArgs) {
   const user = await authenticatedUser(context, request.headers.get('cookie'));
   if (!user) {
     throw redirect('/login');
@@ -66,7 +45,7 @@ export async function loader({ context, request, params }: LoaderFunctionArgs) {
 
 const editRelaySchema = eventSchema;
 
-export async function action({ request, context, params }: ActionFunctionArgs) {
+export async function action({ request, context, params }: Route.ActionArgs) {
   const user = await authenticatedUser(context, request.headers.get('cookie'));
   if (!user) {
     throw redirect('/login');
@@ -113,58 +92,15 @@ export async function action({ request, context, params }: ActionFunctionArgs) {
   return { success: true, message: 'リレーの更新が完了しました' };
 }
 
-type ActionData = {
-  success?: boolean;
-  message?: string;
-  error?: {
-    fieldErrors?: {
-      name?: string[];
-      slug?: string[];
-      submissions?: string[];
-    };
-    message?: string;
-  };
-};
+export default function Edit({ loaderData, actionData }: Route.ComponentProps) {
+  const errors = extractEventFormErrors(actionData);
 
-export default function Edit({ loaderData, actionData }: { loaderData?: LoaderData; actionData?: ActionData }) {
-  const errors = actionData?.error?.fieldErrors
-    ? {
-        name: actionData?.error?.fieldErrors.name?.join(', '),
-        slug: actionData?.error?.fieldErrors.slug?.join(', '),
-        submissions: actionData.error.fieldErrors.submissions,
-      }
-    : undefined;
+  useActionNotifications(actionData, {
+    successMessage: 'リレーの更新が完了しました',
+    errorMessage: 'リレーの更新に失敗しました',
+  });
 
-  useEffect(() => {
-    if (actionData?.success) {
-      notifications.show({
-        title: '更新完了',
-        message: actionData.message || 'リレーの更新が完了しました',
-        color: 'green',
-        autoClose: 5000,
-      });
-    }
-    else if (actionData?.error) {
-      notifications.show({
-        title: 'エラー',
-        message: actionData.error.message || 'リレーの更新に失敗しました',
-        color: 'red',
-        autoClose: 5000,
-      });
-    }
-  }, [actionData]);
-
-  const initialEvent = loaderData?.event
-    ? {
-        name: loaderData.event.name,
-        slug: loaderData.event.slug,
-        submissions: loaderData.event.submissions.map(s => ({
-          name: s.name,
-          twitch: s.twitch,
-          order: s.order,
-        })),
-      }
-    : undefined;
+  const initialEvent = createEventFormInitialValues(loaderData?.event);
 
   return (
     <ContentContainer title={`${loaderData?.event?.name || 'リレー'}を編集`}>

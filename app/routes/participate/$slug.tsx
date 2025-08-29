@@ -1,23 +1,17 @@
-import { redirect } from 'react-router';
-import { ContentContainer } from '~/common/content-container';
+import { redirect, data } from 'react-router';
+import { ContentContainer } from '~/concerns/common/content-container';
 import { Button, Card, Group, Stack, Text, Badge, Modal } from '@mantine/core';
 import { Form, useNavigation, useFetcher } from 'react-router';
 import { useState, useEffect } from 'react';
-import { ParticipantList } from '~/events/participant-list';
+import { ParticipantList } from '~/concerns/events/participant-list';
 import type { Route } from './+types/$slug';
 import type { ShouldRevalidateFunctionArgs } from 'react-router';
-import { authenticatedUser } from '../../.server/auth/auth';
-import { getRelayEventBySlug, getRelayCursor, updateRelayCursor } from '../../.server/services/event';
-import { executeRaid } from '../../.server/services/raid';
+import { authenticatedUser } from '../../concerns/auth/.server/auth';
+import { getRelayEventBySlug, getRelayCursor, updateRelayCursor } from '../../concerns/events/.server/event';
+import { executeRaid } from '../../concerns/twitch/.server/raid';
+import { validateAndRefreshToken } from '../../concerns/twitch/.server/auth';
 import { appMeta } from '~/utils';
-
-type Submission = {
-  id: number;
-  eventId: number;
-  name: string;
-  twitch: string;
-  order: number;
-};
+import type { Submission } from '~/concerns/events/submission';
 
 type EventWithSubmissions = {
   id: number;
@@ -42,6 +36,7 @@ type LoaderData = {
   isLastParticipant: boolean;
   isCurrentParticipant: boolean;
   currentSubmission: Submission | null;
+  parentDomain: string;
 };
 
 export function meta({ loaderData }: { loaderData?: LoaderData }) {
@@ -82,7 +77,11 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const isCurrentParticipant = cursor ? cursor.currentSubmissionId === userSubmission.id : false;
   const currentSubmission = cursor ? event.submissions.find(s => s.id === cursor.currentSubmissionId) : null;
 
-  return { user, event, userSubmission, nextSubmission, isLastParticipant, isCurrentParticipant, currentSubmission };
+  // リクエストからparentドメインを取得
+  const url = new URL(request.url);
+  const parentDomain = url.hostname;
+
+  return { user, event, userSubmission, nextSubmission, isLastParticipant, isCurrentParticipant, currentSubmission, parentDomain };
 }
 
 export async function action({ request, context, params }: Route.ActionArgs) {
@@ -112,9 +111,16 @@ export async function action({ request, context, params }: Route.ActionArgs) {
   }
 
   try {
+    // トークンの生存確認とリフレッシュ
+    const { user: validatedUser, updatedCookie } = await validateAndRefreshToken(
+      context,
+      user,
+      request.headers.get('cookie'),
+    );
+
     await executeRaid(
       context,
-      user.accessToken,
+      validatedUser,
       user.id,
       nextSubmission.twitch,
     );
@@ -126,6 +132,18 @@ export async function action({ request, context, params }: Route.ActionArgs) {
       nextSubmission.id,
       new Date(),
     );
+
+    // トークンがリフレッシュされた場合、data() でCookieを設定
+    if (updatedCookie) {
+      return data(
+        { success: true, message: `${nextSubmission.name}へのraidを開始しました` },
+        {
+          headers: {
+            'Set-Cookie': updatedCookie,
+          },
+        },
+      );
+    }
 
     return { success: true, message: `${nextSubmission.name}へのraidを開始しました` };
   }
@@ -143,7 +161,7 @@ export function shouldRevalidate({ actionResult, formMethod }: ShouldRevalidateF
 }
 
 export default function ParticipateEventDetail({ loaderData, actionData }: Route.ComponentProps) {
-  const { event, userSubmission, nextSubmission, isLastParticipant, isCurrentParticipant, currentSubmission } = loaderData || {};
+  const { event, userSubmission, nextSubmission, isLastParticipant, isCurrentParticipant, currentSubmission, parentDomain } = loaderData || {};
   const navigation = useNavigation();
   const skipFetcher = useFetcher();
   const isSubmitting = navigation.state === 'submitting';
@@ -258,11 +276,11 @@ export default function ParticipateEventDetail({ loaderData, actionData }: Route
                                       {actionData.message}
                                     </Text>
                                   )}
-                                  {actionData?.error && (
+                                  {actionData && 'error' in actionData && actionData.error && (
                                     <Text size="sm" c="red" fw={500}>
                                       ✗
                                       {' '}
-                                      {actionData.error.message}
+                                      {actionData && 'error' in actionData ? actionData.error.message : ''}
                                     </Text>
                                   )}
                                   {skipFetcher.data?.error && (
@@ -303,17 +321,10 @@ export default function ParticipateEventDetail({ loaderData, actionData }: Route
                               </Text>
                             </Group>
                           </div>
-                          <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' }}>
+                          <div className="aspect-video w-full">
                             <iframe
-                              src={`https://player.twitch.tv/?channel=${currentSubmission.twitch}&parent=${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}&muted=false`}
-                              style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                border: 'none',
-                              }}
+                              src={`https://player.twitch.tv/?channel=${currentSubmission.twitch}&parent=${parentDomain || 'localhost'}&muted=false`}
+                              className="w-full h-full border-none"
                               allowFullScreen
                             />
                           </div>

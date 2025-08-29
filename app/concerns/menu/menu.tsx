@@ -3,7 +3,7 @@ import { FlagIcon } from '@heroicons/react/24/outline';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import type React from 'react';
 import { Link } from 'react-router';
-import { Paper } from '~/common/paper';
+import { Paper } from '~/concerns/common/paper';
 
 type ItemProps = {
   icon: React.ReactNode;

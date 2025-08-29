@@ -7,7 +7,7 @@ export function meta() {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  const user = await context.authenticator.authenticate('twitch', request);
+  const user = await context.auth.authenticator.authenticate('twitch', request);
 
   const session = await context.sessionStorage.getSession(request.headers.get('cookie'));
   session.set('user', user);

@@ -1,6 +1,6 @@
 import { redirect } from 'react-router';
 import type { Route } from './+types/logout';
-import { logout } from '../.server/auth/auth';
+import { logout } from '../concerns/auth/.server/auth';
 import { appMeta } from '~/utils';
 
 export function meta() {

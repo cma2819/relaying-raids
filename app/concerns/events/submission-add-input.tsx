@@ -1,15 +1,14 @@
 import { Button, Group, TextInput } from '@mantine/core';
 import { useState } from 'react';
-import type { Dry } from '~/common/models';
-import type { Submission } from './submission';
+import type { SubmissionInput } from './submission';
 
 type Props = {
-  onAdd: (submission: Dry<Submission>) => void;
+  onAdd: (submission: SubmissionInput) => void;
   disabled?: boolean;
 };
 
 export function SubmissionAddInput({ onAdd, disabled }: Props) {
-  const [newSubmission, setNewSubmission] = useState<Dry<Submission>>({
+  const [newSubmission, setNewSubmission] = useState<SubmissionInput>({
     name: '',
     twitch: '',
     order: 0,

@@ -1,4 +1,4 @@
-import { Twitch } from 'arctic';
+import { OAuth2Tokens, Twitch } from 'arctic';
 import { OAuth2Strategy } from 'remix-auth-oauth2';
 import { Strategy } from 'remix-auth/strategy';
 
@@ -32,5 +32,9 @@ export class TwitchStrategy<User> extends OAuth2Strategy<User> {
 
   override validateAuthorizationCode(code: string) {
     return this.twitch.validateAuthorizationCode(code);
+  }
+
+  override refreshToken(refreshToken: string): Promise<OAuth2Tokens> {
+    return this.twitch.refreshAccessToken(refreshToken);
   }
 }

@@ -1,5 +1,5 @@
 import type { AppLoadContext } from 'react-router';
-import * as schema from '../../../database/schema';
+import * as schema from '../../../../database/schema';
 import { eq } from 'drizzle-orm';
 import chunk from 'lodash.chunk';
 

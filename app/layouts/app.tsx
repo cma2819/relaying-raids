@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router';
-import { Head } from '../common/head';
+import { Head } from '../concerns/common/head';
 import { Notifications } from '@mantine/notifications';
 
 export default function ApplicationLayout() {

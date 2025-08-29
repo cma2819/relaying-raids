@@ -1,9 +1,9 @@
 import { redirect } from 'react-router';
-import { ContentContainer } from '~/common/content-container';
+import { ContentContainer } from '~/concerns/common/content-container';
 import type { Route } from './+types/participate';
-import { authenticatedUser } from '../.server/auth/auth';
-import { getRelayEventsByTwitchId } from '../.server/services/event';
-import { ParticipatingEventList } from '~/events/participating-event-list';
+import { authenticatedUser } from '../concerns/auth/.server/auth';
+import { getRelayEventsByTwitchId } from '../concerns/events/.server/event';
+import { ParticipatingEventList } from '~/concerns/events/participating-event-list';
 import { appMeta } from '~/utils';
 
 export function meta() {

@@ -1,13 +1,6 @@
 import { Stack, Text, Group, Badge } from '@mantine/core';
 import type { ReactNode } from 'react';
-
-type Submission = {
-  id: number;
-  eventId: number;
-  name: string;
-  twitch: string;
-  order: number;
-};
+import type { Submission } from './submission';
 
 type ParticipantListProps = {
   submissions: Array<Submission>;

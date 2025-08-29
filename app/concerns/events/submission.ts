@@ -1,10 +1,18 @@
 export type Submission = {
+  id: number;
+  eventId: number;
   name: string;
   twitch: string;
   order: number;
 };
 
-export const loadSubmissionCsv = (file: File, onLoaded: (submissions: Submission[]) => void): void => {
+export type SubmissionInput = {
+  name: string;
+  twitch: string;
+  order: number;
+};
+
+export const loadSubmissionCsv = (file: File, onLoaded: (submissions: SubmissionInput[]) => void): void => {
   const reader = new FileReader();
   reader.onload = (event) => {
     const text = event.target?.result;

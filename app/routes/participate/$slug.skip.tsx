@@ -1,7 +1,7 @@
 import { redirect } from 'react-router';
 import type { Route } from './+types/$slug.skip';
-import { authenticatedUser } from '../../.server/auth/auth';
-import { getRelayEventBySlug, updateRelayCursor } from '../../.server/services/event';
+import { authenticatedUser } from '../../concerns/auth/.server/auth';
+import { getRelayEventBySlug, updateRelayCursor } from '../../concerns/events/.server/event';
 
 export async function action({ request, context, params }: Route.ActionArgs) {
   const user = await authenticatedUser(context, request.headers.get('cookie'));

@@ -17,11 +17,10 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { Dry } from '~/common/models';
-import type { Submission } from './submission';
+import type { SubmissionInput } from './submission';
 
 type SortableItemProps = {
-  submission: Submission;
+  submission: SubmissionInput;
   onDelete: () => void;
 };
 
@@ -70,9 +69,9 @@ function SortableSubmissionItem({ submission, onDelete }: SortableItemProps) {
 }
 
 type Props = {
-  submissions: Dry<Submission>[];
-  onReorder: (submissions: Dry<Submission>[]) => void;
-  onDelete: (submission: Dry<Submission>) => void;
+  submissions: SubmissionInput[];
+  onReorder: (submissions: SubmissionInput[]) => void;
+  onDelete: (submission: SubmissionInput) => void;
 };
 
 export function DraggableSubmissionList({ submissions, onReorder, onDelete }: Props) {

@@ -1,6 +1,6 @@
 import { Avatar, Button, Group } from '@mantine/core';
 import { Form } from 'react-router';
-import { Paper } from '~/common/paper';
+import { Paper } from '~/concerns/common/paper';
 
 type Props = {
   avatar: string;

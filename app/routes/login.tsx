@@ -7,7 +7,7 @@ export function meta() {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-  await context.authenticator.authenticate('twitch', request);
+  await context.auth.authenticator.authenticate('twitch', request);
 }
 
 export default function Home() {

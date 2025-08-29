@@ -1,9 +1,9 @@
 import { redirect } from 'react-router';
-import { ContentContainer } from '~/common/content-container';
+import { ContentContainer } from '~/concerns/common/content-container';
 import type { Route } from './+types/index';
-import { authenticatedUser } from '../../.server/auth/auth';
-import { getRelayEventsByModerator } from '../../.server/services/event';
-import { EventList } from '~/events/event-list';
+import { authenticatedUser } from '../../concerns/auth/.server/auth';
+import { getRelayEventsByModerator } from '../../concerns/events/.server/event';
+import { EventList } from '~/concerns/events/event-list';
 import { appMeta } from '~/utils';
 
 export function meta() {

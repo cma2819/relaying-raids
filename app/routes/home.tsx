@@ -1,7 +1,7 @@
 import type { Route } from './+types/home';
 import { redirect } from 'react-router';
-import { ProfileCard } from '~/twitch/profile-card';
-import { Menu } from '~/menu/menu';
+import { ProfileCard } from '~/concerns/twitch/profile-card';
+import { Menu } from '~/concerns/menu/menu';
 import { appMeta } from '~/utils';
 
 export function meta() {
@@ -18,7 +18,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
-  await context.authenticator.authenticate('twitch', request);
+  await context.auth.authenticator.authenticate('twitch', request);
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
