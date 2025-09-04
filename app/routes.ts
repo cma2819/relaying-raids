@@ -20,6 +20,7 @@ export default [
         route('-/new', './routes/events/new.tsx'),
         route(':slug', './routes/events/edit.tsx'),
         route(':slug/progress', './routes/events/$slug.progress.tsx'),
+        route(':slug/stream', './routes/events/$slug.stream.tsx'),
       ]),
     ]),
   ]),

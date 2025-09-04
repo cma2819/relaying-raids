@@ -8,6 +8,7 @@ import { appMeta } from '~/utils';
 import { useActionNotifications } from '~/concerns/events/notification-hooks';
 import { RelayProgressPanel } from '~/concerns/events/relay-progress-panel';
 import { LivePageCard } from '~/concerns/events/live-page-card';
+import { StreamRedirectCard } from '~/concerns/events/stream-redirect-card';
 
 export function meta({ loaderData }: Route.MetaArgs) {
   return appMeta(
@@ -96,6 +97,10 @@ export default function Progress({ loaderData, actionData }: Route.ComponentProp
       <Stack gap="md">
         {loaderData?.event && (
           <LivePageCard eventSlug={loaderData.event.slug} />
+        )}
+
+        {loaderData?.event && (
+          <StreamRedirectCard eventSlug={loaderData.event.slug} />
         )}
 
         {loaderData?.event && (
