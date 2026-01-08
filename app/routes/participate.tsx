@@ -7,7 +7,7 @@ import { ParticipatingEventList } from '~/concerns/events/participating-event-li
 import { appMeta } from '~/utils';
 
 export function meta() {
-  return appMeta('リレーに参加する', '自分が参加しているレイドリレーの一覧です');
+  return appMeta('レイドリレーに参加する', '自分が参加しているレイドリレーの一覧です');
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
@@ -25,7 +25,7 @@ export default function Participate({ loaderData }: Route.ComponentProps) {
   const { events } = loaderData || { events: [] };
 
   return (
-    <ContentContainer title="リレーに参加する">
+    <ContentContainer title="レイドリレーに参加する">
       <ParticipatingEventList events={events} />
     </ContentContainer>
   );

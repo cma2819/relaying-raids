@@ -17,3 +17,6 @@
 !.env.example
 
 /app/generated/prisma
+
+# Claude
+.claude/settings.local.json

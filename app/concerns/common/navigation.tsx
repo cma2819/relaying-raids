@@ -1,4 +1,3 @@
-import { ListBulletIcon } from '@heroicons/react/24/outline';
 import { FlagIcon } from '@heroicons/react/24/outline';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import { HomeIcon } from '@heroicons/react/24/outline';
@@ -28,9 +27,8 @@ export function Navigation() {
       <nav className="bg-white border-b border-gray-200">
         <div className="flex items-center justify-center gap-4 px-4 py-2">
           <NavItem icon={<HomeIcon />} label="ホーム" href="/" />
-          <NavItem icon={<PencilSquareIcon />} label="レイドリレーをつくる" href="/events/-/new" />
-          <NavItem icon={<ListBulletIcon />} label="つくったリレーを確認する" href="/events" />
-          <NavItem icon={<FlagIcon />} label="リレーに参加する" href="/participate" />
+          <NavItem icon={<PencilSquareIcon />} label="レイドリレーを運営する" href="/events" />
+          <NavItem icon={<FlagIcon />} label="レイドリレーに参加する" href="/participate" />
         </div>
       </nav>
     </div>
