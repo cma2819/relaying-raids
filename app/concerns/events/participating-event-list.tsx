@@ -1,4 +1,4 @@
-import { Button, Card, Group, Stack, Text } from '@mantine/core';
+import { Badge, Button, Card, Group, Stack, Text } from '@mantine/core';
 import { Link } from 'react-router';
 
 type Event = {
@@ -6,6 +6,7 @@ type Event = {
   name: string;
   slug: string;
   moderator: string;
+  isCompleted: boolean;
 };
 
 type Props = {
@@ -27,10 +28,17 @@ export function ParticipatingEventList({ events }: Props) {
   return (
     <Stack gap="md">
       {events.map(event => (
-        <Card key={event.id} shadow="sm" padding="md" radius="md" withBorder>
+        <Card key={event.id} shadow="sm" padding="md" radius="md" withBorder className={event.isCompleted ? 'opacity-60' : ''}>
           <Group justify="space-between" align="flex-start">
             <div>
-              <Text fw={600} size="lg">{event.name}</Text>
+              <Group gap="xs" align="center">
+                <Text fw={600} size="lg" c={event.isCompleted ? 'gray' : undefined}>{event.name}</Text>
+                {event.isCompleted && (
+                  <Badge color="gray" variant="filled">
+                    完了済み
+                  </Badge>
+                )}
+              </Group>
               <Text size="sm" c="dimmed">
                 slug:
                 {event.slug}

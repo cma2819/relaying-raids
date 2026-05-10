@@ -3,7 +3,7 @@ import { ContentContainer } from '~/concerns/common/content-container';
 import { Stack } from '@mantine/core';
 import type { Route } from './+types/$slug.progress';
 import { authenticatedUser } from '../../concerns/auth/.server/auth';
-import { getRelayEventBySlug, getRelayCursor, initializeRelayCursor, updateRelayCursor } from '../../concerns/events/.server/event';
+import { getRelayEventBySlug, getRelayCursor, initializeRelayCursor, updateRelayCursor, completeEvent, isEventCompleted } from '../../concerns/events/.server/event';
 import { appMeta } from '~/utils';
 import { useActionNotifications } from '~/concerns/events/notification-hooks';
 import { RelayProgressPanel } from '~/concerns/events/relay-progress-panel';
@@ -44,8 +44,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   }
 
   const currentSubmission = cursor ? event.submissions.find(s => s.id === cursor.currentSubmissionId) : null;
+  const isCompleted = await isEventCompleted(context, event.id);
 
-  return { user, event, cursor, currentSubmission };
+  return { user, event, cursor, currentSubmission, isCompleted };
 }
 
 export async function action({ request, context, params }: Route.ActionArgs) {
@@ -68,7 +69,24 @@ export async function action({ request, context, params }: Route.ActionArgs) {
     throw new Response('Unauthorized', { status: 403 });
   }
 
+  const isCompleted = await isEventCompleted(context, existingEvent.id);
+  if (isCompleted) {
+    return { error: { message: '完了済みのイベントは変更できません' } };
+  }
+
   const formData = await request.formData();
+  const actionType = formData.get('actionType') as string;
+
+  if (actionType === 'complete') {
+    try {
+      await completeEvent(context, existingEvent.id);
+      return { success: true, message: 'レイドリレーを完了しました' };
+    }
+    catch {
+      return { error: { message: 'レイドリレーの完了に失敗しました' } };
+    }
+  }
+
   const submissionId = parseInt(formData.get('submissionId') as string);
   const markAsRaided = formData.get('markAsRaided') === 'true';
 
@@ -108,6 +126,7 @@ export default function Progress({ loaderData, actionData }: Route.ComponentProp
             event={loaderData.event}
             currentSubmission={loaderData.currentSubmission || null}
             cursor={loaderData.cursor || null}
+            isCompleted={loaderData.isCompleted || false}
           />
         )}
       </Stack>

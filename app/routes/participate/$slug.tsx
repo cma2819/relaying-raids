@@ -7,7 +7,7 @@ import { ParticipantList } from '~/concerns/events/participant-list';
 import type { Route } from './+types/$slug';
 import type { ShouldRevalidateFunctionArgs } from 'react-router';
 import { authenticatedUser } from '../../concerns/auth/.server/auth';
-import { getRelayEventBySlug, getRelayCursor, updateRelayCursor } from '../../concerns/events/.server/event';
+import { getRelayEventBySlug, getRelayCursor, updateRelayCursor, isEventCompleted } from '../../concerns/events/.server/event';
 import { executeRaid } from '../../concerns/twitch/.server/raid';
 import { validateAndRefreshToken } from '../../concerns/twitch/.server/auth';
 import { appMeta } from '~/utils';
@@ -37,6 +37,7 @@ type LoaderData = {
   isCurrentParticipant: boolean;
   currentSubmission: Submission | null;
   parentDomain: string;
+  isCompleted: boolean;
 };
 
 export function meta({ loaderData }: { loaderData?: LoaderData }) {
@@ -81,7 +82,9 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const parentDomain = url.hostname;
 
-  return { user, event, userSubmission, nextSubmission, isLastParticipant, isCurrentParticipant, currentSubmission, parentDomain };
+  const isCompleted = await isEventCompleted(context, event.id);
+
+  return { user, event, userSubmission, nextSubmission, isLastParticipant, isCurrentParticipant, currentSubmission, parentDomain, isCompleted };
 }
 
 export async function action({ request, context, params }: Route.ActionArgs) {
@@ -161,7 +164,7 @@ export function shouldRevalidate({ actionResult, formMethod }: ShouldRevalidateF
 }
 
 export default function ParticipateEventDetail({ loaderData, actionData }: Route.ComponentProps) {
-  const { event, userSubmission, nextSubmission, isLastParticipant, isCurrentParticipant, currentSubmission, parentDomain } = loaderData || {};
+  const { event, userSubmission, nextSubmission, isLastParticipant, isCurrentParticipant, currentSubmission, parentDomain, isCompleted } = loaderData || {};
   const navigation = useNavigation();
   const skipFetcher = useFetcher();
   const isSubmitting = navigation.state === 'submitting';
@@ -221,125 +224,137 @@ export default function ParticipateEventDetail({ loaderData, actionData }: Route
 
       <ContentContainer title={`${event.name}`}>
         <Stack gap="md">
-          {currentSubmission
+          {isCompleted
             ? (
                 <Card shadow="sm" padding="md" radius="md" withBorder>
-                  {isCurrentParticipant
-                    ? (
-                        <Stack gap="md">
-                          <Text fw={700} size="xl" c="green" ta="center">あなたの出番です！</Text>
-                          <Text size="lg" c="green" fw={500} ta="center">
-                            出番が終わったら、下のボタンからRaidを送ってください
-                          </Text>
-                          {!isLastParticipant && nextSubmission && (
+                  <Stack gap="sm" align="center">
+                    <Badge size="lg" color="gray" variant="filled">
+                      完了済み
+                    </Badge>
+                    <Text fw={500} c="gray">このレイドリレーは完了しました</Text>
+                    <Text size="sm" c="dimmed">ご参加ありがとうございました</Text>
+                  </Stack>
+                </Card>
+              )
+            : currentSubmission
+              ? (
+                  <Card shadow="sm" padding="md" radius="md" withBorder>
+                    {isCurrentParticipant
+                      ? (
+                          <Stack gap="md">
+                            <Text fw={700} size="xl" c="green" ta="center">あなたの出番です！</Text>
+                            <Text size="lg" c="green" fw={500} ta="center">
+                              出番が終わったら、下のボタンからRaidを送ってください
+                            </Text>
+                            {!isLastParticipant && nextSubmission && (
+                              <div>
+                                <Text fw={500} mb="xs">次の参加者へRaid</Text>
+                                <Group gap="xs" mb="md">
+                                  <Text size="sm">次の順番:</Text>
+                                  <Text fw={500}>
+                                    {nextSubmission.name}
+                                    {' '}
+                                    (@
+                                    {nextSubmission.twitch}
+                                    )
+                                  </Text>
+                                </Group>
+                                <Form method="post">
+                                  <Stack gap="md">
+                                    <Button
+                                      type="submit"
+                                      variant="filled"
+                                      color="violet"
+                                      loading={isSubmitting}
+                                      disabled={isSubmitting}
+                                    >
+                                      {nextSubmission.name}
+                                      へRaidを開始する
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      color="gray"
+                                      loading={isSkipping}
+                                      disabled={isSkipping}
+                                      onClick={() => skipFetcher.submit({}, {
+                                        method: 'post',
+                                        action: `/participate/${event.slug}/skip`,
+                                      })}
+                                    >
+                                      Raidせずに次に進める
+                                    </Button>
+                                    {actionData?.success && (
+                                      <Text size="sm" c="green" fw={500}>
+                                        ✓
+                                        {' '}
+                                        {actionData.message}
+                                      </Text>
+                                    )}
+                                    {actionData && 'error' in actionData && actionData.error && (
+                                      <Text size="sm" c="red" fw={500}>
+                                        ✗
+                                        {' '}
+                                        {actionData && 'error' in actionData ? actionData.error.message : ''}
+                                      </Text>
+                                    )}
+                                    {skipFetcher.data?.error && (
+                                      <Text size="sm" c="red" fw={500}>
+                                        ✗
+                                        {' '}
+                                        {skipFetcher.data.error}
+                                      </Text>
+                                    )}
+                                    <Text size="xs" c="dimmed">
+                                      ※ Twitch APIを使用してRaidを開始します
+                                    </Text>
+                                  </Stack>
+                                </Form>
+                              </div>
+                            )}
+                            {isLastParticipant && (
+                              <Text fw={500} c="green" ta="center">
+                                リレーの最後の順番のため、Raidを開始することはできません。
+                              </Text>
+                            )}
+                          </Stack>
+                        )
+                      : (
+                          <Stack gap="md">
                             <div>
-                              <Text fw={500} mb="xs">次の参加者へRaid</Text>
-                              <Group gap="xs" mb="md">
-                                <Text size="sm">次の順番:</Text>
-                                <Text fw={500}>
-                                  {nextSubmission.name}
-                                  {' '}
+                              <Text fw={500} c="green">現在の出番</Text>
+                              <Group gap="xs">
+                                <Badge variant="filled" color="green">
+                                  {currentSubmission.order}
+                                  番目
+                                </Badge>
+                                <Text fw={500}>{currentSubmission.name}</Text>
+                                <Text size="sm" c="dimmed">
                                   (@
-                                  {nextSubmission.twitch}
+                                  {currentSubmission.twitch}
                                   )
                                 </Text>
                               </Group>
-                              <Form method="post">
-                                <Stack gap="md">
-                                  <Button
-                                    type="submit"
-                                    variant="filled"
-                                    color="violet"
-                                    loading={isSubmitting}
-                                    disabled={isSubmitting}
-                                  >
-                                    {nextSubmission.name}
-                                    へRaidを開始する
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    color="gray"
-                                    loading={isSkipping}
-                                    disabled={isSkipping}
-                                    onClick={() => skipFetcher.submit({}, {
-                                      method: 'post',
-                                      action: `/participate/${event.slug}/skip`,
-                                    })}
-                                  >
-                                    Raidせずに次に進める
-                                  </Button>
-                                  {actionData?.success && (
-                                    <Text size="sm" c="green" fw={500}>
-                                      ✓
-                                      {' '}
-                                      {actionData.message}
-                                    </Text>
-                                  )}
-                                  {actionData && 'error' in actionData && actionData.error && (
-                                    <Text size="sm" c="red" fw={500}>
-                                      ✗
-                                      {' '}
-                                      {actionData && 'error' in actionData ? actionData.error.message : ''}
-                                    </Text>
-                                  )}
-                                  {skipFetcher.data?.error && (
-                                    <Text size="sm" c="red" fw={500}>
-                                      ✗
-                                      {' '}
-                                      {skipFetcher.data.error}
-                                    </Text>
-                                  )}
-                                  <Text size="xs" c="dimmed">
-                                    ※ Twitch APIを使用してRaidを開始します
-                                  </Text>
-                                </Stack>
-                              </Form>
                             </div>
-                          )}
-                          {isLastParticipant && (
-                            <Text fw={500} c="green" ta="center">
-                              リレーの最後の順番のため、Raidを開始することはできません。
-                            </Text>
-                          )}
-                        </Stack>
-                      )
-                    : (
-                        <Stack gap="md">
-                          <div>
-                            <Text fw={500} c="green">現在の出番</Text>
-                            <Group gap="xs">
-                              <Badge variant="filled" color="green">
-                                {currentSubmission.order}
-                                番目
-                              </Badge>
-                              <Text fw={500}>{currentSubmission.name}</Text>
-                              <Text size="sm" c="dimmed">
-                                (@
-                                {currentSubmission.twitch}
-                                )
-                              </Text>
-                            </Group>
-                          </div>
-                          <div className="aspect-video w-full">
-                            <iframe
-                              src={`https://player.twitch.tv/?channel=${currentSubmission.twitch}&parent=${parentDomain || 'localhost'}&muted=false`}
-                              className="w-full h-full border-none"
-                              allowFullScreen
-                            />
-                          </div>
-                        </Stack>
-                      )}
-                </Card>
-              )
-            : (
-                <Card shadow="sm" padding="md" radius="md" withBorder>
-                  <Stack gap="sm" align="center">
-                    <Text fw={500} c="gray">まだ開始されていません</Text>
-                    <Text size="sm" c="dimmed">リレーが開始されるまでお待ちください</Text>
-                  </Stack>
-                </Card>
-              )}
+                            <div className="aspect-video w-full">
+                              <iframe
+                                src={`https://player.twitch.tv/?channel=${currentSubmission.twitch}&parent=${parentDomain || 'localhost'}&muted=false`}
+                                className="w-full h-full border-none"
+                                allowFullScreen
+                              />
+                            </div>
+                          </Stack>
+                        )}
+                  </Card>
+                )
+              : (
+                  <Card shadow="sm" padding="md" radius="md" withBorder>
+                    <Stack gap="sm" align="center">
+                      <Text fw={500} c="gray">まだ開始されていません</Text>
+                      <Text size="sm" c="dimmed">リレーが開始されるまでお待ちください</Text>
+                    </Stack>
+                  </Card>
+                )}
 
           <Card shadow="sm" padding="md" radius="md" withBorder>
             <ParticipantList

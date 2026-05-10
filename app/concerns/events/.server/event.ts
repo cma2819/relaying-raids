@@ -132,7 +132,14 @@ export const getRelayEventsByModerator = async (
     orderBy: (events, { desc }) => desc(events.id),
   });
 
-  return events;
+  const eventsWithCompletionStatus = await Promise.all(
+    events.map(async (event) => {
+      const isCompleted = await isEventCompleted(context, event.id);
+      return { ...event, isCompleted };
+    }),
+  );
+
+  return eventsWithCompletionStatus;
 };
 
 export const getRelayEventBySlug = async (
@@ -192,7 +199,14 @@ export const getRelayEventsByTwitchId = async (
     .where(eq(schema.relaySubmissions.twitch, twitchId))
     .orderBy(schema.relayEvents.id);
 
-  return events;
+  const eventsWithCompletionStatus = await Promise.all(
+    events.map(async (event) => {
+      const isCompleted = await isEventCompleted(context, event.id);
+      return { ...event, isCompleted };
+    }),
+  );
+
+  return eventsWithCompletionStatus;
 };
 
 export const getRelayCursor = async (
@@ -245,4 +259,35 @@ export const updateRelayCursor = async (
     .where(eq(schema.relayCursors.eventId, eventId));
 
   return true;
+};
+
+export const completeEvent = async (
+  context: AppLoadContext,
+  eventId: number,
+) => {
+  const existingCompletedEvent = await context.db.query.completedEvents.findFirst({
+    where: (completedEvents, { eq }) => eq(completedEvents.eventId, eventId),
+  });
+
+  if (existingCompletedEvent) {
+    throw new Error('Event is already completed');
+  }
+
+  await context.db.insert(schema.completedEvents).values({
+    eventId: eventId,
+    completedAt: new Date(),
+  });
+
+  return true;
+};
+
+export const isEventCompleted = async (
+  context: AppLoadContext,
+  eventId: number,
+) => {
+  const completedEvent = await context.db.query.completedEvents.findFirst({
+    where: (completedEvents, { eq }) => eq(completedEvents.eventId, eventId),
+  });
+
+  return !!completedEvent;
 };

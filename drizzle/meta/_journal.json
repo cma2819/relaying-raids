@@ -50,6 +50,20 @@
       "when": 1756221941623,
       "tag": "0006_closed_reptil",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1767836103291,
+      "tag": "0007_rapid_human_robot",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1767836298169,
+      "tag": "0008_bright_gwen_stacy",
+      "breakpoints": true
     }
   ]
 }

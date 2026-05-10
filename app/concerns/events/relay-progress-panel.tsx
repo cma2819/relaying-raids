@@ -1,5 +1,5 @@
-import { Stack, Paper, Text, Card, Group, Badge, Menu, ActionIcon } from '@mantine/core';
-import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
+import { Stack, Paper, Text, Card, Group, Badge, Menu, ActionIcon, Button } from '@mantine/core';
+import { EllipsisHorizontalIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useSubmit } from 'react-router';
 import { ParticipantList } from './participant-list';
 import type { Submission } from './submission';
@@ -22,27 +22,52 @@ type RelayProgressPanelProps = {
   event: EventWithSubmissions;
   currentSubmission: Submission | null;
   cursor: RelayCursor | null;
+  isCompleted: boolean;
 };
 
 export function RelayProgressPanel({
   event,
   currentSubmission,
   cursor,
+  isCompleted,
 }: RelayProgressPanelProps) {
   const submit = useSubmit();
 
+  const handleCompleteEvent = () => {
+    if (confirm('このレイドリレーを完了としてマークしますか？\n完了したリレーは編集ができなくなります。')) {
+      submit({ actionType: 'complete' }, { method: 'POST' });
+    }
+  };
+
   return (
-    <Paper shadow="sm" p="md" radius="md" withBorder>
+    <Paper shadow="sm" p="md" radius="md" withBorder className={isCompleted ? 'opacity-60' : ''}>
       <Stack gap="md">
-        <Text fw={600} size="lg">リレー進行状況</Text>
+        <Group justify="space-between" align="center">
+          <Text fw={600} size="lg" c={isCompleted ? 'gray' : undefined}>リレー進行状況</Text>
+          {!isCompleted && (
+            <Button
+              leftSection={<CheckCircleIcon className="w-5 h-5" />}
+              color="green"
+              variant="light"
+              onClick={handleCompleteEvent}
+            >
+              レイドリレーを完了する
+            </Button>
+          )}
+          {isCompleted && (
+            <Badge size="lg" color="gray" variant="filled">
+              完了済み
+            </Badge>
+          )}
+        </Group>
 
         {currentSubmission
           ? (
-              <Card shadow="sm" padding="sm" radius="md" withBorder bg="blue.1">
+              <Card shadow="sm" padding="sm" radius="md" withBorder bg={isCompleted ? 'gray.1' : 'blue.1'}>
                 <Group justify="space-between" align="center">
                   <Group gap="xs">
-                    <Badge variant="filled" color="blue">現在</Badge>
-                    <Text fw={500}>{currentSubmission.name}</Text>
+                    <Badge variant="filled" color={isCompleted ? 'gray' : 'blue'}>現在</Badge>
+                    <Text fw={500} c={isCompleted ? 'gray' : undefined}>{currentSubmission.name}</Text>
                     <Text size="sm" c="dimmed">
                       (@
                       {currentSubmission.twitch}
@@ -54,7 +79,7 @@ export function RelayProgressPanel({
                     </Text>
                   </Group>
                   {cursor?.raidedAt && (
-                    <Badge variant="light" color="green">
+                    <Badge variant="light" color={isCompleted ? 'gray' : 'green'}>
                       レイド済み (
                       {new Date(cursor.raidedAt).toLocaleTimeString()}
                       )
@@ -72,6 +97,8 @@ export function RelayProgressPanel({
           currentSubmission={currentSubmission}
           variant="progress"
           renderActions={(submission) => {
+            if (isCompleted) return null;
+
             const isPast = currentSubmission && submission.order < currentSubmission.order;
             const isFuture = currentSubmission && submission.order > currentSubmission.order;
 

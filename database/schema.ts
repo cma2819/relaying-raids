@@ -20,3 +20,9 @@ export const relayCursors = sqliteTable('relayCursors', {
   currentSubmissionId: integer().notNull().references(() => relaySubmissions.id, { onDelete: 'cascade' }),
   raidedAt: integer({ mode: 'timestamp' }),
 });
+
+export const completedEvents = sqliteTable('completedEvents', {
+  id: integer().primaryKey({ autoIncrement: true }),
+  eventId: integer().notNull().references(() => relayEvents.id, { onDelete: 'cascade' }),
+  completedAt: integer({ mode: 'timestamp' }).notNull(),
+});
