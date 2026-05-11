@@ -10,6 +10,7 @@ export default [
       ]),
     ]),
     layout('./layouts/with-navigation.tsx', [
+      route('guide', './routes/guide.tsx'),
       route('participate', './routes/participate.tsx'),
       ...prefix('participate', [
         route(':slug', './routes/participate/$slug.tsx'),

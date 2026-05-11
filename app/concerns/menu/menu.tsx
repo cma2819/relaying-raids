@@ -1,4 +1,4 @@
-import { FlagIcon } from '@heroicons/react/24/outline';
+import { FlagIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import type React from 'react';
 import { Link } from 'react-router';
 import { Paper } from '~/concerns/common/paper';
@@ -46,6 +46,12 @@ export function Menu() {
           label="レイドリレーに参加する"
           description="登録済みのレイドリレーに参加します"
           href="/participate"
+        />
+        <MenuItem
+          icon={<QuestionMarkCircleIcon className="size-9" />}
+          label="使い方"
+          description="レイドリレーの運営方法と参加方法を説明します"
+          href="/guide"
         />
       </div>
     </Paper>
