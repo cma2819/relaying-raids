@@ -21,7 +21,7 @@ export function ProfileCard({ avatar, login, displayName }: Props) {
               {login}
             </span>
           </div>
-          <Button className="ml-auto" variant="subtle" type="submit">Logout</Button>
+          <Button className="ml-auto" variant="subtle" type="submit">ログアウト</Button>
         </Group>
       </Form>
     </Paper>

@@ -203,19 +203,6 @@ export default function Guide() {
           </section>
         )}
 
-        <section>
-          <Paper className="bg-blue-50 border-blue-200">
-            <Stack gap="sm">
-              <Text fw={600} size="md" className="text-blue-900">Tips</Text>
-              <ul className="space-y-2 text-sm text-gray-700 ml-4">
-                <li>参加者として登録されるには、運営者にTwitchユーザー名を伝えてください</li>
-                <li>リレーのslugは後から変更できません。慎重に決めてください</li>
-                <li>参加者の順番は運営者がいつでも変更できます</li>
-                <li>リレーが完了した後も、記録として参加者リストを確認できます</li>
-              </ul>
-            </Stack>
-          </Paper>
-        </section>
       </Stack>
     </ContentContainer>
   );
