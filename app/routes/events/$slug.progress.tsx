@@ -1,18 +1,18 @@
-import { redirect } from 'react-router';
+import { Link, redirect } from 'react-router';
 import { ContentContainer } from '~/concerns/common/content-container';
-import { Stack } from '@mantine/core';
+import { Button, Group, Stack } from '@mantine/core';
+import { DocumentDuplicateIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import type { Route } from './+types/$slug.progress';
 import { authenticatedUser } from '../../concerns/auth/.server/auth';
 import { getRelayEventBySlug, getRelayCursor, initializeRelayCursor, updateRelayCursor, completeEvent, isEventCompleted } from '../../concerns/events/.server/event';
 import { appMeta } from '~/utils';
 import { useActionNotifications } from '~/concerns/events/notification-hooks';
 import { RelayProgressPanel } from '~/concerns/events/relay-progress-panel';
-import { LivePageCard } from '~/concerns/events/live-page-card';
-import { StreamRedirectCard } from '~/concerns/events/stream-redirect-card';
+import { copyStreamUrl } from '~/concerns/events/url-utils';
 
 export function meta({ loaderData }: Route.MetaArgs) {
   return appMeta(
-    `${loaderData?.event?.name || 'リレー'}の進行状況`,
+    loaderData?.event?.name || 'リレー',
     'レイドリレーの進行状況を管理します',
   );
 }
@@ -110,20 +110,38 @@ export default function Progress({ loaderData, actionData }: Route.ComponentProp
     errorMessage: 'リレー進行状況の更新に失敗しました',
   });
 
+  const event = loaderData?.event;
+
   return (
-    <ContentContainer title={`${loaderData?.event?.name || 'リレー'}の進行状況`}>
+    <ContentContainer title={event?.name || 'リレー'}>
       <Stack gap="md">
-        {loaderData?.event && (
-          <LivePageCard eventSlug={loaderData.event.slug} />
-        )}
+        <Group gap="xs">
+          <Button
+            onClick={() => event && copyStreamUrl(event.slug)}
+            variant="light"
+            color="violet"
+            size="sm"
+            leftSection={<DocumentDuplicateIcon className="w-4 h-4" />}
+          >
+            リダイレクトURLをコピー
+          </Button>
+          {!loaderData?.isCompleted && (
+            <Button
+              component={Link}
+              to={`/events/${event?.slug}`}
+              variant="light"
+              color="blue"
+              size="sm"
+              leftSection={<PencilSquareIcon className="w-4 h-4" />}
+            >
+              編集
+            </Button>
+          )}
+        </Group>
 
-        {loaderData?.event && (
-          <StreamRedirectCard eventSlug={loaderData.event.slug} />
-        )}
-
-        {loaderData?.event && (
+        {event && (
           <RelayProgressPanel
-            event={loaderData.event}
+            event={event}
             currentSubmission={loaderData.currentSubmission || null}
             cursor={loaderData.cursor || null}
             isCompleted={loaderData.isCompleted || false}

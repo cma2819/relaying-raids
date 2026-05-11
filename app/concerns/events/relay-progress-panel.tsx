@@ -44,16 +44,6 @@ export function RelayProgressPanel({
       <Stack gap="md">
         <Group justify="space-between" align="center">
           <Text fw={600} size="lg" c={isCompleted ? 'gray' : undefined}>リレー進行状況</Text>
-          {!isCompleted && (
-            <Button
-              leftSection={<CheckCircleIcon className="w-5 h-5" />}
-              color="green"
-              variant="light"
-              onClick={handleCompleteEvent}
-            >
-              レイドリレーを完了する
-            </Button>
-          )}
           {isCompleted && (
             <Badge size="lg" color="gray" variant="filled">
               完了済み
@@ -144,6 +134,18 @@ export function RelayProgressPanel({
             );
           }}
         />
+
+        {!isCompleted && (
+          <Button
+            leftSection={<CheckCircleIcon className="w-5 h-5" />}
+            color="green"
+            variant="light"
+            onClick={handleCompleteEvent}
+            fullWidth
+          >
+            レイドリレーを完了する
+          </Button>
+        )}
       </Stack>
     </Paper>
   );

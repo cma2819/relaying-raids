@@ -33,21 +33,9 @@ export function copyToClipboard(
   });
 }
 
-export function buildLiveUrl(slug: string, baseUrl?: string): string {
-  const origin = baseUrl || window.location.origin;
-  return `${origin}/events/${slug}/live`;
-}
-
 export function buildStreamUrl(slug: string, baseUrl?: string): string {
   const origin = baseUrl || window.location.origin;
   return `${origin}/events/${slug}/stream`;
-}
-
-export function copyLiveUrl(slug: string, baseUrl?: string): void {
-  const liveUrl = buildLiveUrl(slug, baseUrl);
-  copyToClipboard(liveUrl, {
-    successMessage: 'ライブ配信URLをコピーしました',
-  });
 }
 
 export function copyStreamUrl(slug: string, baseUrl?: string): void {

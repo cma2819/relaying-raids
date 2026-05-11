@@ -1,5 +1,5 @@
-import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import { Badge, Card, Stack, Text, Title, Timeline } from '@mantine/core';
+import { CheckCircleIcon, DocumentDuplicateIcon, EllipsisHorizontalIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { ActionIcon, Badge, Button, Card, Group, Stack, Text, Title, Timeline } from '@mantine/core';
 import { useState } from 'react';
 import { ContentContainer } from '~/concerns/common/content-container';
 import { Paper } from '~/concerns/common/paper';
@@ -60,72 +60,150 @@ export default function Guide() {
 
         {viewMode === 'organizer' && (
           <section>
-            <Stack gap="md">
-              <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Stack gap="lg">
-                  <div>
-                    <Text fw={600} size="lg" mb="sm">1. レイドリレーを作成する</Text>
-                    <Text size="sm" c="dimmed" mb="md">
-                      ホーム画面から「レイドリレーを運営する」を選択し、「新しいリレーを作成」ボタンをクリックします。
-                    </Text>
-                  </div>
-
-                  <div>
-                    <Text fw={600} size="lg" mb="sm">2. イベント情報を入力する</Text>
-                    <Stack gap="xs">
-                      <div className="bg-gray-50 p-4 rounded-md border">
-                        <Text size="sm" fw={500} mb="xs">イベント名</Text>
-                        <Text size="sm" c="dimmed">例: 春の配信リレー2026</Text>
-                      </div>
-                      <div className="bg-gray-50 p-4 rounded-md border">
-                        <Text size="sm" fw={500} mb="xs">slug (URLに使われる識別子)</Text>
-                        <Text size="sm" c="dimmed">例: spring-relay-2026</Text>
-                        <Text size="xs" c="dimmed" mt="xs">3文字以上の英数字とハイフンが使用できます</Text>
-                      </div>
-                    </Stack>
-                  </div>
-
-                  <div>
-                    <Text fw={600} size="lg" mb="sm">3. 参加者を追加する</Text>
-                    <Text size="sm" c="dimmed" mb="md">
-                      参加者の名前とTwitchユーザー名を入力して追加します。
-                      順番はドラッグ&ドロップで変更できます。
-                    </Text>
-                    <div className="bg-white p-4 rounded-md border">
-                      <SubmissionAddInput onAdd={() => {}} disabled />
-                      <Text size="xs" c="dimmed" mt="xs">CSVファイルから一括で参加者を追加することもできます</Text>
+            <Stack gap="xl">
+              <Stack gap="md">
+                <Title order={3} size="h4">リレーの準備</Title>
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                  <Stack gap="lg">
+                    <div>
+                      <Text fw={600} size="lg" mb="sm">1. レイドリレーを作成する</Text>
+                      <Text size="sm" c="gray.7" mb="md">
+                        ホーム画面から「レイドリレーを運営する」を選択し、「新しいリレーを作成」ボタンをクリックします。
+                      </Text>
                     </div>
-                  </div>
 
-                  <div>
-                    <Text fw={600} size="lg" mb="sm">4. リレーを開始する</Text>
-                    <Text size="sm" c="dimmed">
-                      作成したリレーの詳細画面から「リレーを開始」ボタンをクリックします。
-                      開始後は参加者の配信ページへのリンクや進行状況が表示されます。
+                    <div>
+                      <Text fw={600} size="lg" mb="sm">2. イベント情報を入力する</Text>
+                      <Stack gap="xs">
+                        <div className="bg-gray-50 p-4 rounded-md border">
+                          <Text size="sm" fw={500} mb="xs">イベント名</Text>
+                          <Text size="sm" c="gray.7">例: 春の配信リレー2026</Text>
+                        </div>
+                        <div className="bg-gray-50 p-4 rounded-md border">
+                          <Text size="sm" fw={500} mb="xs">slug (URLに使われる識別子)</Text>
+                          <Text size="sm" c="gray.7">例: spring-relay-2026</Text>
+                          <Text size="xs" c="gray.7" mt="xs">3文字以上の英数字とハイフンが使用できます</Text>
+                        </div>
+                      </Stack>
+                    </div>
+
+                    <div>
+                      <Text fw={600} size="lg" mb="sm">3. 参加者を追加する</Text>
+                      <Text size="sm" c="gray.7" mb="md">
+                        参加者の名前とTwitchユーザー名を入力して追加します。
+                        順番はドラッグ&ドロップで変更できます。
+                      </Text>
+                      <div className="bg-white p-4 rounded-md border">
+                        <SubmissionAddInput onAdd={() => {}} disabled />
+                        <Text size="xs" c="gray.7" mt="xs">CSVファイルから一括で参加者を追加することもできます</Text>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Text fw={600} size="lg" mb="sm">4. リレーを開始する</Text>
+                      <Text size="sm" c="gray.7">
+                        作成後はいつでもリレーを始められる状態です。
+                        最初の参加者からレイドリレーを始めましょう！
+                      </Text>
+                    </div>
+                  </Stack>
+                </Card>
+              </Stack>
+
+              <Stack gap="md">
+                <Title order={3} size="h4">リダイレクトURLを公開</Title>
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                  <Stack gap="lg">
+                    <Text size="sm" c="gray.7">
+                      リダイレクトURLは、アクセスした時点で配信中の参加者のTwitchページへ自動的に転送する専用URLです。
+                      視聴者はこのURLをブックマークしておくだけで、常に現在の配信者へたどり着けます。
                     </Text>
-                  </div>
-                </Stack>
-              </Card>
+                    <Text size="sm" c="gray.7">
+                      SNS等での告知に活用して、視聴者が常に最新の配信を見つけられるようにしましょう。
+                    </Text>
 
-              <Paper>
-                <Stack gap="sm">
-                  <Text fw={600} size="md">運営者ができること</Text>
-                  <Timeline bulletSize={20} lineWidth={2}>
-                    <Timeline.Item title="リレーの作成・編集">
-                      <Text size="sm" c="dimmed">イベント情報や参加者リストを管理</Text>
-                    </Timeline.Item>
-                    <Timeline.Item title="リレーの開始・完了">
-                      <Text size="sm" c="dimmed">リレーの状態を制御</Text>
-                    </Timeline.Item>
-                    <Timeline.Item title="進行状況の確認">
-                      <Text size="sm" c="dimmed">現在配信中の参加者をリアルタイムで把握</Text>
-                    </Timeline.Item>
-                    <Timeline.Item title="参加者へのリンク共有">
-                      <Text size="sm" c="dimmed">専用URLで参加者ページにアクセス</Text>
-                    </Timeline.Item>
-                  </Timeline>
-                </Stack>
-              </Paper>
+                    <div>
+                      <Text fw={600} size="lg" mb="sm">URLの取得方法</Text>
+                      <Text size="sm" c="gray.7" mb="sm">
+                        リレーの進行管理ページ上部にあるボタンを押すと、クリップボードにURLがコピーされます。
+                      </Text>
+                      <Button
+                        variant="light"
+                        color="violet"
+                        size="sm"
+                        leftSection={<DocumentDuplicateIcon className="w-4 h-4" />}
+                      >
+                        リダイレクトURLをコピー
+                      </Button>
+                    </div>
+
+                  </Stack>
+                </Card>
+              </Stack>
+
+              <Stack gap="md">
+                <Title order={3} size="h4">進行状況を確認・修正</Title>
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                  <Stack gap="lg">
+                    <Text size="sm" c="gray.7">
+                      リレーの進行管理ページでは、現在の配信者をリアルタイムで確認しながら進行を手動で修正できます。
+                    </Text>
+
+                    <div>
+                      <Text fw={600} size="lg" mb="sm">現在の配信者を確認する</Text>
+                      <Text size="sm" c="gray.7" mb="sm">
+                        ページ上部のカードに現在配信中の参加者が表示されます。レイドを送った後は「レイド済み」バッジが付きます。
+                      </Text>
+                      <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
+                        <Group gap="xs">
+                          <Badge variant="filled" color="blue">現在</Badge>
+                          <Text fw={500} size="sm">山田太郎</Text>
+                          <Text size="sm" c="gray.7">(@yamada_taro)</Text>
+                          <Text size="sm" c="gray.7">#3</Text>
+                          <Badge variant="light" color="green">レイド済み</Badge>
+                        </Group>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Text fw={600} size="lg" mb="sm">進行を修正する</Text>
+                      <Text size="sm" c="gray.7" mb="sm">
+                        参加者リストの各行右端にある
+                        {' '}
+                        <ActionIcon variant="light" color="gray" size="sm" component="span">
+                          <EllipsisHorizontalIcon className="w-4 h-4" />
+                        </ActionIcon>
+                        {' '}
+                        メニューから進行位置を修正できます。
+                      </Text>
+                      <Stack gap="xs">
+                        <div className="bg-gray-50 p-3 rounded-md border">
+                          <Text size="sm" fw={500} c="blue" mb="xs">ここに戻す</Text>
+                          <Text size="sm" c="gray.7">現在より前の参加者に進行を戻します。順番を間違えたときや、やり直しが必要なときに使います。</Text>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-md border">
+                          <Text size="sm" fw={500} c="orange" mb="xs">ここまでスキップ</Text>
+                          <Text size="sm" c="gray.7">現在より後の参加者に進行を進めます。欠席者が出たときなどに使います。</Text>
+                        </div>
+                      </Stack>
+                    </div>
+
+                    <div>
+                      <Text fw={600} size="lg" mb="sm">リレーを完了する</Text>
+                      <Text size="sm" c="gray.7" mb="sm">
+                        全員の配信が終わったら、下のボタンでリレーを完了済みにします。完了後は編集や進行修正ができなくなります。
+                      </Text>
+                      <Button
+                        leftSection={<CheckCircleIcon className="w-5 h-5" />}
+                        color="green"
+                        variant="light"
+                      >
+                        レイドリレーを完了する
+                      </Button>
+                    </div>
+                  </Stack>
+                </Card>
+              </Stack>
             </Stack>
           </section>
         )}
@@ -137,7 +215,7 @@ export default function Guide() {
                 <Stack gap="lg">
                   <div>
                     <Text fw={600} size="lg" mb="sm">1. 参加リレーを確認する</Text>
-                    <Text size="sm" c="dimmed" mb="md">
+                    <Text size="sm" c="gray.7" mb="md">
                       ホーム画面から「レイドリレーに参加する」を選択すると、
                       自分が参加者として登録されているリレーの一覧が表示されます。
                     </Text>
@@ -149,17 +227,17 @@ export default function Guide() {
                               <Text fw={600} size="lg">春の配信リレー2026</Text>
                               <Badge color="green" variant="filled">進行中</Badge>
                             </div>
-                            <Text size="sm" c="dimmed">slug: spring-relay-2026</Text>
+                            <Text size="sm" c="gray.7">slug: spring-relay-2026</Text>
                           </div>
                         </div>
                       </Card>
-                      <Text size="xs" c="dimmed" mt="xs">リレーの状態はバッジで表示されます</Text>
+                      <Text size="xs" c="gray.7" mt="xs">リレーの状態はバッジで表示されます</Text>
                     </div>
                   </div>
 
                   <div>
                     <Text fw={600} size="lg" mb="sm">2. リレーの詳細を確認する</Text>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gray.7">
                       リレーをクリックすると、参加者リストと自分の順番を確認できます。
                       リレーが開始されると、現在配信中の参加者と次の配信者が表示されます。
                     </Text>
@@ -167,10 +245,10 @@ export default function Guide() {
 
                   <div>
                     <Text fw={600} size="lg" mb="sm">3. 自分の番になったら配信する</Text>
-                    <Text size="sm" c="dimmed" mb="xs">
+                    <Text size="sm" c="gray.7" mb="xs">
                       自分の順番が来たら、Twitchで配信を開始してください。
                     </Text>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gray.7">
                       配信終了時は、次の参加者に向けてレイドを送ります。
                     </Text>
                   </div>
@@ -182,19 +260,19 @@ export default function Guide() {
                   <Text fw={600} size="md">参加者が確認できる情報</Text>
                   <Timeline bulletSize={20} lineWidth={2}>
                     <Timeline.Item title="参加リレーの一覧">
-                      <Text size="sm" c="dimmed">自分が登録されているリレーをすべて表示</Text>
+                      <Text size="sm" c="gray.7">自分が登録されているリレーをすべて表示</Text>
                     </Timeline.Item>
                     <Timeline.Item title="リレーの状態">
-                      <Text size="sm" c="dimmed">待機中・進行中・完了済みのステータス</Text>
+                      <Text size="sm" c="gray.7">待機中・進行中・完了済みのステータス</Text>
                     </Timeline.Item>
                     <Timeline.Item title="参加者リストと順番">
-                      <Text size="sm" c="dimmed">自分の配信順番を確認</Text>
+                      <Text size="sm" c="gray.7">自分の配信順番を確認</Text>
                     </Timeline.Item>
                     <Timeline.Item title="現在の配信者">
-                      <Text size="sm" c="dimmed">誰が配信中か、次は誰かをリアルタイムで把握</Text>
+                      <Text size="sm" c="gray.7">誰が配信中か、次は誰かをリアルタイムで把握</Text>
                     </Timeline.Item>
                     <Timeline.Item title="配信ページへのリンク">
-                      <Text size="sm" c="dimmed">参加者のTwitch配信ページに直接アクセス</Text>
+                      <Text size="sm" c="gray.7">参加者のTwitch配信ページに直接アクセス</Text>
                     </Timeline.Item>
                   </Timeline>
                 </Stack>

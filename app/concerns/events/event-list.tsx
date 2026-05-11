@@ -1,4 +1,4 @@
-import { Badge, Button, Card, Group, Stack, Text } from '@mantine/core';
+import { Badge, Button, Card, Group, Stack, Text, Anchor } from '@mantine/core';
 import { Link } from 'react-router';
 
 type Event = {
@@ -29,45 +29,27 @@ export function EventList({ events }: Props) {
     <Stack gap="md">
       {events.map(event => (
         <Card key={event.id} shadow="sm" padding="md" radius="md" withBorder className={event.isCompleted ? 'opacity-60' : ''}>
-          <Group justify="space-between" align="flex-start">
-            <div>
-              <Group gap="xs" align="center">
-                <Text fw={600} size="lg" c={event.isCompleted ? 'gray' : undefined}>{event.name}</Text>
-                {event.isCompleted && (
-                  <Badge color="gray" variant="filled">
-                    完了済み
-                  </Badge>
-                )}
-              </Group>
-              <Text size="sm" c="dimmed">
-                slug:
-                {event.slug}
-              </Text>
-            </div>
-            <Group gap="xs">
-              <Button
-                component={Link}
-                to={`/events/${event.slug}/progress`}
-                size="sm"
-                radius="md"
-                variant="filled"
-                color="green"
-                disabled={event.isCompleted}
-              >
-                進行管理
-              </Button>
-              <Button
-                component={Link}
-                to={`/events/${event.slug}`}
-                size="sm"
-                radius="md"
-                variant="outline"
-                disabled={event.isCompleted}
-              >
-                編集
-              </Button>
-            </Group>
+          <Group gap="xs" align="center">
+            <Anchor
+              component={Link}
+              to={`/events/${event.slug}/progress`}
+              fw={600}
+              size="lg"
+              c={event.isCompleted ? 'gray' : undefined}
+              underline="hover"
+            >
+              {event.name}
+            </Anchor>
+            {event.isCompleted && (
+              <Badge color="gray" variant="filled">
+                完了済み
+              </Badge>
+            )}
           </Group>
+          <Text size="sm" c="dimmed">
+            slug:
+            {event.slug}
+          </Text>
         </Card>
       ))}
       <Button component={Link} to="/events/-/new" radius="md" variant="outline">

@@ -5,9 +5,6 @@ export default [
     layout('./layouts/without-navigation.tsx', [
       index('./routes/home.tsx'),
       route('login', './routes/login.tsx'),
-      ...prefix('events', [
-        route(':slug/live', './routes/events/$slug.live.tsx'),
-      ]),
     ]),
     layout('./layouts/with-navigation.tsx', [
       route('guide', './routes/guide.tsx'),
